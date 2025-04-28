@@ -1,8 +1,11 @@
 package org.integratedhrm.jobmodule.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 
 @Entity
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
+
 public class Skill {
 
     @Id

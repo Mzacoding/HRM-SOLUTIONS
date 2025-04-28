@@ -2,10 +2,7 @@ package org.integratedhrm.jobmodule.services;
 
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
-import org.integratedhrm.jobmodule.entity.Job;
-import org.integratedhrm.jobmodule.entity.JobSkill;
-import org.integratedhrm.jobmodule.entity.Location;
-import org.integratedhrm.jobmodule.entity.Skill;
+import org.integratedhrm.jobmodule.entity.*;
 import org.integratedhrm.jobmodule.exception.JobNotFoundException;
 import org.integratedhrm.jobmodule.repository.*;
 import  org.integratedhrm.jobmodule.repository.JobRepository;
@@ -29,7 +26,8 @@ public class JobServiceManager implements JobService {
     LocationRepository locationRepository;
     @Autowired
     JobSkillRepository jobSkillRepository;
-
+    @Autowired
+     CompanyRepository companyRepository;
     @Override
 
     public List<Job> findAll() {
@@ -69,6 +67,11 @@ public class JobServiceManager implements JobService {
                 jobSkill.setJob(job);
                 // Handle Skill for JobSkill
                 Skill skill = jobSkill.getSkill();
+
+                if (skill == null) {
+                    throw new RuntimeException("Skill is required for JobSkill");
+                }
+
                 if (skill.getId() == null) {
                     skill = skillRepository.save(skill);
                 } else {
@@ -77,6 +80,22 @@ public class JobServiceManager implements JobService {
                 }
                 jobSkill.setSkill(skill);
             }
+        }
+
+
+        Company company=job.getCompany();
+
+        if(company!=null){
+            if(company.getId()==null){
+
+                companyRepository.save(company);
+            }else{
+                company=  companyRepository.findById(company.getId()).orElseThrow( ()  ->
+                        new RuntimeException("No Company Found")
+                );
+                company=  companyRepository.save(company);
+            }
+            job.setCompany(company);
         }
 
         jobRepository.save(job);
